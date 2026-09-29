@@ -1,15 +1,20 @@
 import { redirectUri } from "../../lib/ml.js";
 
 export default function handler(req, res) {
-  if (!process.env.MCP_SECRET || req.query.key !== process.env.MCP_SECRET) {
-    res.status(404).end();
+  const s = process.env.MCP_SECRET || "";
+  const k = String(req.query.key || "");
+  if (!s || k !== s) {
+    res.status(403).send(
+      `No autorizado. MCP_SECRET cargado: ${s ? "sí (" + s.length + " caracteres)" : "NO"}. ` +
+      `Clave del link: ${k.length} caracteres. ML_CLIENT_ID cargado: ${process.env.ML_CLIENT_ID ? "sí" : "NO"}.`
+    );
     return;
   }
   const q = new URLSearchParams({
     response_type: "code",
     client_id: process.env.ML_CLIENT_ID,
     redirect_uri: redirectUri(req),
-    state: process.env.MCP_SECRET,
+    state: s,
   });
   res.redirect(302, `https://auth.mercadolibre.com.ar/authorization?${q}`);
 }
