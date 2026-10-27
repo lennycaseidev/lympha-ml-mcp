@@ -30,7 +30,7 @@ function buildServer() {
     {
       title: "Plata de Mercado Libre por día",
       description:
-        "Por día (hora Argentina), de las órdenes pagadas: facturación, cargo por venta de ML, envío que paga el vendedor, reembolsos, órdenes en cuotas y frascos. Excluye canceladas.",
+        "Por día (hora Argentina), de las órdenes pagadas: facturación, cargo por venta de ML, envío que paga el vendedor, gasto en publicidad de ML (Product Ads), reembolsos, órdenes en cuotas y frascos. Excluye canceladas.",
       inputSchema: {
         desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Fecha inicial YYYY-MM-DD"),
         hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Fecha final YYYY-MM-DD, por defecto hoy"),
