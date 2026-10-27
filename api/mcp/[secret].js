@@ -1,10 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
-import { salesByDay } from "../../lib/ml.js";
+import { salesByDay, financesByDay } from "../../lib/ml.js";
+
+export const config = { maxDuration: 60 };
 
 function buildServer() {
-  const server = new McpServer({ name: "lympha-mercadolibre", version: "1.0.0" });
+  const server = new McpServer({ name: "lympha-mercadolibre", version: "1.1.0" });
   server.registerTool(
     "ml_ventas_por_dia",
     {
@@ -20,6 +22,23 @@ function buildServer() {
     },
     async (args) => {
       const data = await salesByDay(args);
+      return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data };
+    }
+  );
+  server.registerTool(
+    "ml_finanzas_por_dia",
+    {
+      title: "Plata de Mercado Libre por día",
+      description:
+        "Por día (hora Argentina), de las órdenes pagadas: facturación, cargo por venta de ML, envío que paga el vendedor, reembolsos, órdenes en cuotas y frascos. Excluye canceladas.",
+      inputSchema: {
+        desde: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Fecha inicial YYYY-MM-DD"),
+        hasta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Fecha final YYYY-MM-DD, por defecto hoy"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async (args) => {
+      const data = await financesByDay(args);
       return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data };
     }
   );
